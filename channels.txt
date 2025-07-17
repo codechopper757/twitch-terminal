@@ -1,5 +1,3 @@
-codechopper
-mathmaneu
-trui
-slitherinetv
-nutty
+channel1
+channel2
+...etc
