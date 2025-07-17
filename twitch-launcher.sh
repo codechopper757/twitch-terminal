@@ -31,10 +31,40 @@ selected=$(echo "$options" | fzf --prompt="Choose stream: ")
 if [[ "$selected" == "Custom..." ]]; then
     read -p "Enter Twitch channel name: " selected
 else
-    # Extract channel name (first word before first space)
     selected=$(echo "$selected" | awk '{print $1}')
 fi
 
+# Notify about ad pause behavior
+echo "Note: Twitch ads will cause short stream pauses. This is normal."
+
 # Launch chat and stream
 kitty --title="Twitch Chat: $selected" /usr/bin/twt --channel "$selected" &
-streamlink --player mpv "twitch.tv/$selected" best
+
+# Function to run streamlink with ad detection and yad popup
+run_stream_with_ad_timer() {
+    streamlink --player mpv "twitch.tv/$1" best 2>&1 | while read -r line; do
+        echo "$line"
+
+        if [[ "$line" =~ Detected\ advertisement\ break\ of\ ([0-9]+)\ seconds ]]; then
+            duration="${BASH_REMATCH[1]}"
+            (
+                for ((i=duration; i>0; i--)); do
+                    echo "# Twitch ad break: $i seconds remaining"
+                    echo "$((100 - (i * 100 / duration)))"
+                    sleep 1
+                done
+            ) | yad --progress \
+                    --title="Twitch Ad Break" \
+                    --percentage=0 \
+                    --auto-close \
+                    --no-buttons \
+                    --width=300 \
+                    --on-top \
+                    --center &
+        fi
+    done
+}
+
+# Run the stream
+
+run_stream_with_ad_timer "$selected"

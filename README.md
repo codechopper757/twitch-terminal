@@ -26,6 +26,7 @@ cd twitch-launcher
 
 You'll need these installed:
 
+- `yad`
 - `fzf`
 - `curl`
 - `jq`
@@ -37,7 +38,7 @@ You'll need these installed:
 On Arch-based distros:
 
 ```bash
-yay -S fzf jq streamlink mpv kitty twt
+yay -S fzf jq streamlink mpv kitty twt yad
 ```
 
 ### 3. Register a Twitch Developer App
